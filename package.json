@@ -1,0 +1,22 @@
+{
+  "name": "eos_server",
+  "version": "1.0.0",
+  "description": "Essence of shadows nodejs websocket server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Insality/eos_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Insality/eos_server/issues"
+  },
+  "homepage": "https://github.com/Insality/eos_server#readme",
+  "dependencies": {
+    "ws": "^1.1.1"
+  }
+}
