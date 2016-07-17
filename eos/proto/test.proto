@@ -1,0 +1,13 @@
+enum Type {
+  msg = 1;
+}
+
+message Test {
+  required float num  = 1;
+  required string msg = 2;
+}
+
+message AnotherOne {
+  repeated Type msgType = 1;
+  required string msg = 2;
+}

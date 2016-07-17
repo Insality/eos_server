@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/Insality/eos_server#readme",
   "dependencies": {
+    "express": "^4.14.0",
+    "nodejs-websocket": "^1.6.0",
     "socket.io": "^1.4.8",
+    "websocket": "^1.0.23",
     "ws": "^1.1.1"
   }
 }
