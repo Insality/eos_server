@@ -3,6 +3,7 @@ module.exports = function() {
 	this.acceleration = 60;
 	this.friction = 0;
 	this.velocity = {x: 0, y: 0};
+	this.bowAngle = 0;
 
 	this.input = {"u": false, "d": false, "l": false, "r": false};
 
@@ -14,6 +15,11 @@ module.exports = function() {
 		if (msg["type"] === "input") {
 			this.input[msg.side] = msg.action == "press";
 		} 
+		if (msg["type"] === "update") {
+			if (msg.x) this.pos.x = msg.x;
+			if (msg.y) this.pos.y = msg.y;
+			if (msg.bowAngle) this.bowAngle = msg.bowAngle;
+		}
 	};
 
 	this.onDisconnect = function(ws) {
@@ -33,13 +39,5 @@ module.exports = function() {
 		if (this.input["l"]) {
 			this.velocity.x -= this.acceleration * dt;
 		}
-
-		this.pos.x += this.velocity.x;
-		this.pos.y += this.velocity.y;
-
-		this.velocity.x *= this.friction;
-		this.velocity.y *= this.friction;
-
-		console.log(this.pos);
 	};
 };

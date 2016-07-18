@@ -25,7 +25,5 @@ module.exports = function() {
 		this.players.forEach(function(player) {
 			player.update(dt);
 		});
-
-		console.log(this.cur_tick);
 	};
 };
