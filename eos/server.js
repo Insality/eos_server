@@ -8,7 +8,7 @@ var game = new Game();
 var id = 1000;
 
 function onNewConnection(ws) {
-	ws.id = "id" + id;
+	ws.id = id;
 	id++;
 	game.onConnect(ws);
 	clients.push(ws);

@@ -4,7 +4,6 @@ module.exports = function() {
 	this.friction = 0;
 	this.velocity = {x: 0, y: 0};
 	this.bowAngle = 0;
-
 	this.input = {"u": false, "d": false, "l": false, "r": false};
 
 	this.onConnect = function(ws) {
