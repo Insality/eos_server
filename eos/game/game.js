@@ -43,6 +43,9 @@ module.exports = function() {
 	};
 
 	this.update = function(dt) {
+
+		// console.log(this.cur_tick);
+
 		this.cur_tick += 60 * dt;
 		this.players.forEach(function(player) {
 			player.update(dt);
