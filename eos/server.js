@@ -44,4 +44,7 @@ setInterval(function() {
 
 	game.update(dt/1000);
 }, 1000/60);
+
+setInterval(function() { game.sendSnapshot(); }, 1000/20 );
+
 console.log("Started EOS WebSocket Server");

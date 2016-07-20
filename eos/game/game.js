@@ -2,7 +2,7 @@ var Player = require('./player');
 
 module.exports = function() {
 	this.players = [];
-	this.cur_tick = 1;
+	this.cur_time = 1;
 	this.links = {};
 	this.server = null;
 
@@ -16,11 +16,12 @@ module.exports = function() {
 		for(var i = 0; i < this.players.length; i++) {
 			var player = this.players[i];
 			if (player.ws.id === ws.id) {
-				ws.send(JSON.stringify({"type": "init", "tick": this.cur_tick, "id": player.ws.id}), {binary: true});
+				ws.send(JSON.stringify({"type": "init", "time": this.cur_time, "id": player.ws.id}), {binary: true});
 				console.log('send init')
 			} else{
-				ws.send(JSON.stringify({"type": "create", "tick": this.cur_tick, "entity": "player", "id": player.ws.id}), {binary: true});
-				player.ws.send(JSON.stringify({"type": "create", "tick": this.cur_tick, "entity": "player", "id": ws.id}), {binary: true});
+				// TODO to event? or from client it's should be?
+				ws.send(JSON.stringify({"type": "create", "time": this.cur_time, "entity": "player", "id": player.ws.id}), {binary: true});
+				player.ws.send(JSON.stringify({"type": "create", "time": this.cur_time, "entity": "player", "id": ws.id}), {binary: true});
 				console.log('send create')
 			}
 		}
@@ -34,22 +35,36 @@ module.exports = function() {
 		for(var i = 0; i < this.players.length; i++) {
 			var player = this.players[i];
 			if (player.ws.id !== ws.id) {
-				player.ws.send(JSON.stringify({"type": "remove", "tick": this.cur_tick, "entity": "player", "id": ws.id}), {binary: true});
+				// TODO: to event?
+				player.ws.send(JSON.stringify({"type": "remove", "time": this.cur_time, "entity": "player", "id": ws.id}), {binary: true});
 			}
 		}
 
-		
 		this.players.splice(this.players.indexOf(this.links[ws.id]), 1)
 	};
 
 	this.update = function(dt) {
-
-		// console.log(this.cur_tick);
-
-		this.cur_tick += 60 * dt;
+		this.cur_time += dt * 1000;
 		this.players.forEach(function(player) {
 			player.update(dt);
 		});
+	};
+
+	this.sendToAll = function(json_message, exclude) {
+		for(var i = 0; i < this.players.length; i++) {
+			var player = this.players[i];
+			if (exclude) {
+				if (player.ws !== exclude) {
+					player.ws.send(JSON.stringify(json_message), {binary: true});
+				}
+			} else { 
+				player.ws.send(JSON.stringify(json_message), {binary: true});
+			}
+		}
+	};
+
+	this.sendSnapshot = function() {
+		console.log("Send snapshot. Cur time: " + this.cur_time);
 
 		var playerUpdateInfo = []
 		for(var i = 0; i < this.players.length; i++) {
@@ -59,7 +74,7 @@ module.exports = function() {
 
 		for(var i = 0; i < this.players.length; i++) {
 			var player = this.players[i];
-			player.ws.send(JSON.stringify({"type": "update", "tick": this.cur_tick, "list": playerUpdateInfo}), {binary: true});
+			player.ws.send(JSON.stringify({"type": "update", "time": this.cur_time, "list": playerUpdateInfo}), {binary: true});
 		}
 	};
 };
