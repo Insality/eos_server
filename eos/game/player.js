@@ -1,3 +1,5 @@
+var Arrow = require('./arrow');
+
 module.exports = function() {
 	this.pos = {x: 0, y: 0};
 	this.acceleration = 100;
@@ -5,8 +7,8 @@ module.exports = function() {
 	this.velocity = {x: 0, y: 0};
 	this.bowAngle = 0;
 	this.input = {"u": false, "d": false, "l": false, "r": false};
-	this.delay = 500;
 	this.unhandled_messages = [];
+	this.game = arguments[0]
 
 	this.onConnect = function(ws) {
 
@@ -15,37 +17,33 @@ module.exports = function() {
 	this.onMessage = function(ws, msg) {
 		if (msg["type"] === "interval") {
 			for (var i = 0; i < msg["data"].length; i++){
+				msg["data"][i]["time"] -= msg["start_time"];
 				this.unhandled_messages.push(msg["data"][i]);
-				console.log("income message. My time:" + this.game.cur_time + " and msg first time:  " + msg["data"][0]["time"])
 			}
 		}
 	};
 
 	this.handleMessage = function(ws, msg) {
 		if (msg["type"] === "input") {
-			this.input[msg.side] = msg.action == "press";
+			if (msg.side) this.input[msg.side] = msg.action == "press";
+			if (msg.bowAngle) this.bowAngle = msg.bowAngle;
+			if (msg.leftpressed) {
+				var arrow = new Arrow(this.game);
+				arrow.setState(this.pos, this.bowAngle); 
+			};
 		} 
-
-		if (msg["type"] === "create") {
-			if (msg["entity"] === "arrow") {
-				this.game.sendToAll({"type": "create", "entity": "arrow", "x": this.pos.x, "y": this.pos.y, "angle": this.bowAngle, "id": ws.id}, ws);
-			}
-		}
-
-		msg["handled"] = true;
 	};
 
-	this.handleMessagesDelay = function() {
+	this.handleMessagesDelay = function(dt) {
 		for (var i = 0; i < this.unhandled_messages.length; i++) {
 			var message = this.unhandled_messages[i];
-			if (message["time"] <= this.game.cur_time - this.delay) {
+			message["time"] -= dt * 1000;
+			if (message["time"] <= 0) {
 				this.handleMessage(this.ws, message);
 			}
 		}
 
-		this.unhandled_messages = this.unhandled_messages.filter(function(m) { return !m["handled"];} );
-
-		console.log(this.unhandled_messages.length);
+		this.unhandled_messages = this.unhandled_messages.filter(function(m) { return m["time"] > 0;} );
 	};
 
 	this.onDisconnect = function(ws) {
@@ -65,7 +63,9 @@ module.exports = function() {
 		if (this.input["l"]) {
 			this.velocity.x -= this.acceleration * dt;
 		}
+	};
 
+	this.updatePosition = function(dt) {
 		this.pos.x += this.velocity.x;
  		this.pos.y += this.velocity.y;
  
@@ -73,8 +73,10 @@ module.exports = function() {
  		this.velocity.y *= 0;
 	};
 
+
 	this.update = function(dt) {
-		this.handleMessagesDelay(this.delay);
+		this.handleMessagesDelay(dt);
 		this.handleInput(dt);
+		this.updatePosition();
 	};
 };
